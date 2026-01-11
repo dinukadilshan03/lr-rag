@@ -23,6 +23,8 @@ def search_similar(
     retrieved = []
 
     for point in results:
+        if point.score < 0.5:
+            continue
         payload = point.payload or {}
 
         retrieved.append(
