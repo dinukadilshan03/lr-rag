@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: lr-rag
+Version: 0.1.0
+Summary: Local Reliable RAG system using Ollama and Qdrant
+Requires-Python: >=3.12
+Requires-Dist: httpx>=0.28.1
+Requires-Dist: llama-index>=0.14.12
+Requires-Dist: pydantic>=2.12.5
+Requires-Dist: python-dotenv>=1.2.1
+Requires-Dist: qdrant-client>=1.16.2

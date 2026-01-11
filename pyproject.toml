@@ -1,0 +1,17 @@
+[project]
+name = "lr-rag"
+version = "0.1.0"
+description = "Local Reliable RAG system using Ollama and Qdrant"
+requires-python = ">=3.12"
+
+dependencies = [
+    "httpx>=0.28.1",
+    "llama-index>=0.14.12",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "qdrant-client>=1.16.2",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
