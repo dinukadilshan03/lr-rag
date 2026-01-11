@@ -15,8 +15,8 @@ def chunk_text(text: str) -> List[TextNode]:
     document = Document(text=text)
 
     splitter = SentenceSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=200,
+        chunk_overlap=40,
     )
 
     nodes = splitter.get_nodes_from_documents([document])

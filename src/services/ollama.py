@@ -39,9 +39,11 @@ class OllamaClient:
         url = f"{self.base_url}/api/chat"
 
         system_prompt = (
-            "You are a helpful assistant. "
-            "Answer the question using ONLY the provided context. "
-            "If the answer is not in the context, say you do not know."
+            "You are a document-grounded assistant.\n"
+            "You MUST answer using ONLY the information in the provided context.\n"
+            "If the context does NOT contain the answer, reply exactly:\n"
+            "\"I cannot find this information in the provided documents.\"\n"
+            "Do NOT use prior knowledge."
         )
 
         messages = [{"role": "system", "content": system_prompt}]
