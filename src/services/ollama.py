@@ -41,9 +41,10 @@ class OllamaClient:
         system_prompt = (
             "You are a document-grounded assistant.\n"
             "You MUST answer using ONLY the information in the provided context.\n"
+            "Provide clear, concise explanations based directly on the source material.\n"
             "If the context does NOT contain the answer, reply exactly:\n"
             "\"I cannot find this information in the provided documents.\"\n"
-            "Do NOT use prior knowledge."
+            "Do NOT use prior knowledge. Do NOT generate code or examples unless explicitly shown in the context."
         )
 
         messages = [{"role": "system", "content": system_prompt}]
