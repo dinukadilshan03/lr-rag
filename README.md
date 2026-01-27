@@ -3,7 +3,7 @@
 A self-hosted Retrieval-Augmented Generation (RAG) system for grounded question-answering over PDF documents using local LLMs and vector databases. All processing runs locally—no cloud dependencies, full data privacy.
 
 
-[![Demo](assets/thumbnail.png)](assets/demo.mov)
+![Demo](assets/RAG-app.gif)
 
 ## 🎯 What It Does
 
