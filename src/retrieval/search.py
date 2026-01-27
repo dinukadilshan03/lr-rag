@@ -1,7 +1,10 @@
 from typing import List, Dict, Any
+import logging
 
 from src.services.qdrant import qdrant_service
 from src.config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 def search_similar(
@@ -20,22 +23,26 @@ def search_similar(
         limit=top_k or settings.TOP_K,
     )
 
+    logger.info(f"Qdrant returned {len(results)} raw results")
+
     retrieved = []
 
     for point in results:
         if point.score < 0.5:
+            logger.debug(f"Filtered out chunk with score {point.score:.3f}")
             continue
         payload = point.payload or {}
 
-        retrieved.append(
-            {
-                "text": payload.get("text", ""),
-                "source": payload.get("source", ""),
-                "score": point.score,
-            }
-        )
+        chunk = {
+            "text": payload.get("text", ""),
+            "source": payload.get("source", ""),
+            "score": point.score,
+        }
+        retrieved.append(chunk)
+        logger.debug(f"Retrieved chunk (score {point.score:.3f}): {chunk['text'][:100]}...")
 
     if not retrieved:
         raise RuntimeError("No similar documents found")
 
+    logger.info(f"Returning {len(retrieved)} chunks after filtering (score >= 0.5)")
     return retrieved
