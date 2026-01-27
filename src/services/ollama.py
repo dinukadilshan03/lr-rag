@@ -1,7 +1,10 @@
 import httpx
 from typing import List, Optional
+import logging
 
 from src.config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 class OllamaClient:
@@ -19,14 +22,18 @@ class OllamaClient:
             "prompt": text,
         }
 
-        with httpx.Client(timeout=60.0) as client:
-            response = client.post(url, json=payload)
-            response.raise_for_status()
-
-        data = response.json()
+        try:
+            with httpx.Client(timeout=60.0) as client:
+                response = client.post(url, json=payload)
+                response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            logger.error(f"Embedding request failed: {e}")
+            raise
 
         embedding = data.get("embedding")
         if not embedding:
+            logger.error(f"No embedding returned. Full response: {data}")
             raise RuntimeError("No embedding returned from Ollama")
 
         return embedding
@@ -35,32 +42,33 @@ class OllamaClient:
         """
         Generate a response using the ChatQA model.
         Optionally accepts retrieved context.
+        Forces concise, context-aware answers.
         """
         url = f"{self.base_url}/api/chat"
 
         system_prompt = (
-            "You are a document-grounded assistant.\n"
-            "You MUST answer using ONLY the information in the provided context.\n"
-            "Provide clear, concise explanations based directly on the source material.\n"
-            "If the context does NOT contain the answer, reply exactly:\n"
-            "\"I cannot find this information in the provided documents.\"\n"
-            "Do NOT use prior knowledge. Do NOT generate code or examples unless explicitly shown in the context."
+            "You are a helpful AI assistant. Use the provided context to answer the user's question.\n"
+            "Answer clearly, concisely, and directly. If the answer is not in the context, say you cannot find it.\n"
+            "Do not invent or speculate. High-level explanations first; technical details optional.\n"
+            "Cite sources if available."
         )
 
         messages = [{"role": "system", "content": system_prompt}]
 
         if context:
+            # Include context explicitly
             messages.append(
                 {
                     "role": "user",
-                    "content": f"Context:\n{context}",
+                    "content": f"Context:\n{context}"
                 }
             )
 
+        # Add the user prompt
         messages.append(
             {
                 "role": "user",
-                "content": prompt,
+                "content": prompt
             }
         )
 
@@ -68,20 +76,29 @@ class OllamaClient:
             "model": settings.LLM_MODEL,
             "messages": messages,
             "stream": False,
+            "options": {
+                "temperature": 0.3,  # lower to reduce tangents
+                "num_predict": 512,   # allow sufficiently long answers
+            },
         }
 
-        with httpx.Client(timeout=120.0) as client:
-            response = client.post(url, json=payload)
-            response.raise_for_status()
+        try:
+            with httpx.Client(timeout=120.0) as client:
+                response = client.post(url, json=payload)
+                response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            logger.error(f"Chat request failed: {e}")
+            raise
 
-        data = response.json()
-        message = data.get("message", {}).get("content")
+        logger.info(f"Ollama response keys: {list(data.keys())}")
 
+        message = data.get("message", {}).get("content", "").strip()
         if not message:
+            logger.error(f"Empty response from Ollama. Full response: {data}")
             raise RuntimeError("No response returned from Ollama")
 
         return message
 
-
-# Singleton-style client
+# Singleton client
 ollama_client = OllamaClient()

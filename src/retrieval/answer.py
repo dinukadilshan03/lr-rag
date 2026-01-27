@@ -1,6 +1,9 @@
 from typing import List, Dict, Tuple
+import logging
 
 from src.services.ollama import ollama_client
+
+logger = logging.getLogger(__name__)
 
 
 def build_context(
@@ -46,10 +49,15 @@ def generate_answer(
 
     context, source_map = build_context(retrieved_chunks)
 
+    logger.info(f"Built context from {len(retrieved_chunks)} chunks, {len(context)} chars")
+    logger.debug(f"Context preview: {context[:200]}...")
+
     answer = ollama_client.chat(
         prompt=question,
         context=context,
     )
+
+    logger.info(f"LLM returned answer of {len(answer)} chars")
 
     if not answer:
         raise RuntimeError("LLM returned an empty answer")
