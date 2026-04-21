@@ -36,7 +36,7 @@ Cloud RAG stacks often introduce practical and governance pain points:
 5. Embed user query
 6. Retrieve top relevant chunks via cosine similarity
 7. Build grounded context + citations
-8. Generate an answer with local `llama3*` via Ollama
+8. Generate an answer with a local `llama3` model (commonly 8B; 70B variant if available in your Ollama setup)
 
 ### Benefits
 
@@ -140,7 +140,8 @@ embed_query() --> search_similar() --> build_context() --> generate_answer()
 
 ```bash
 # 1) Clone
-cd /home/runner/work/lr-rag/lr-rag
+git clone https://github.com/dinukadilshan03/lr-rag.git
+cd lr-rag
 
 # 2) Create environment
 python -m venv .venv
@@ -151,8 +152,8 @@ pip install -r requirements.txt
 # (or use pyproject-compatible workflow if you manage dependencies differently)
 
 # 4) Configure environment
-cp .env .env.local 2>/dev/null || true
-# edit values as needed
+# This repository includes a `.env` file. Edit it directly for local setup.
+# Optional local override: cp .env .env.local && edit .env.local
 ```
 
 ---
@@ -165,8 +166,9 @@ cp .env .env.local 2>/dev/null || true
    ```bash
    ollama pull nomic-embed-text
    ollama pull llama3
-   # optional larger model:
-   ollama pull llama3:70b
+   # optional larger model (tag availability may vary):
+   # ollama pull llama3:70b
+   # verify local tags with `ollama list` and model docs at https://ollama.com/library/llama3
    ```
 
 ### Qdrant
@@ -181,14 +183,14 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 
 ### Streamlit UI
 ```bash
-cd /home/runner/work/lr-rag/lr-rag
+cd lr-rag
 streamlit run streamlit_app.py
 # open http://localhost:8501
 ```
 
 ### CLI
 ```bash
-python cli.py ingest /absolute/path/to/document.pdf
+python cli.py ingest ./documents/sample.pdf
 python cli.py ask "What are the key findings?"
 ```
 
@@ -421,8 +423,9 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 # make sure ollama models exist
 ollama pull nomic-embed-text
 ollama pull llama3
+# If your setup exposes parameter-specific tags, pull the one you need.
 
 # run app
-cd /home/runner/work/lr-rag/lr-rag
+cd lr-rag
 streamlit run streamlit_app.py
 ```
